@@ -1,27 +1,27 @@
 function ccc = mfcc(x)
-% 归一化mel滤波器组系数
+% 褰掍竴鍖杕el婊ゆ尝鍣ㄧ粍绯绘暟
 bank=melbankm(24,256,8000,0,0.5,'m');
 bank=full(bank);
 bank=bank/max(bank(:));
 
-% DCT系数,12*24
+% DCT绯绘暟,12*24
 for k=1:12
   n=0:23;
   dctcoef(k,:)=cos((2*n+1)*k*pi/(2*24));
 end
 
-% 归一化倒谱提升窗口
+% 褰掍竴鍖栧�掕氨鎻愬崌绐楀彛
 w = 1 + 6 * sin(pi * [1:12] ./ 12);
 w = w/max(w);
 
-% 预加重滤波器
+% 棰勫姞閲嶆护娉㈠櫒
 xx=double(x);
 xx=filter([1 -0.9375],1,xx);
 
-% 语音信号分帧
+% 璇煶淇″彿鍒嗗抚
 xx=enframe(xx,256,80);
 
-% 计算每帧的MFCC参数
+% 璁＄畻姣忓抚鐨凪FCC鍙傛暟
 for i=1:size(xx,1)
   y = xx(i,:);
   s = y' .* hamming(256);
@@ -32,14 +32,14 @@ for i=1:size(xx,1)
   m(i,:)=c2';
 end
 
-%差分系数
+%宸垎绯绘暟
 dtm = zeros(size(m));
 for i=3:size(m,1)-2
   dtm(i,:) = -2*m(i-2,:) - m(i-1,:) + m(i+1,:) + 2*m(i+2,:);
 end
 dtm = dtm / 3;
 
-%合并mfcc参数和一阶差分mfcc参数
+%鍚堝苟mfcc鍙傛暟鍜屼竴闃跺樊鍒唌fcc鍙傛暟
 ccc = [m dtm];
-%去除首尾两帧，因为这两帧的一阶差分参数为0
+%鍘婚櫎棣栧熬涓ゅ抚锛屽洜涓鸿繖涓ゅ抚鐨勪竴闃跺樊鍒嗗弬鏁颁负0
 ccc = ccc(3:size(m,1)-2,:);
