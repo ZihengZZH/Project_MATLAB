@@ -1,10 +1,10 @@
 function [x1,x2] = vad(x)
 
-%·ù¶È¹éÒ»»¯µ½[-1,1]
+%å¹…åº¦å½’ä¸€åŒ–åˆ°[-1,1]
 x = double(x);
 x = x / max(abs(x));
 
-%³£ÊıÉèÖÃ
+%å¸¸æ•°è®¾ç½®
 FrameLen = 240;
 FrameInc = 80;
 
@@ -19,53 +19,53 @@ status  = 0;
 count   = 0;
 silence = 0;
 
-%¼ÆËã¹ıÁãÂÊ
+%è®¡ç®—è¿‡é›¶ç‡
 tmp1  = enframe(x(1:end-1), FrameLen, FrameInc);
 tmp2  = enframe(x(2:end)  , FrameLen, FrameInc);
 signs = (tmp1.*tmp2)<0;
 diffs = (tmp1 -tmp2)>0.02;
 zcr   = sum(signs.*diffs, 2);
 
-%¼ÆËã¶ÌÊ±ÄÜÁ¿
+%è®¡ç®—çŸ­æ—¶èƒ½é‡
 amp = sum(abs(enframe(filter([1 -0.9375], 1, x), FrameLen, FrameInc)), 2);
 
-%µ÷ÕûÄÜÁ¿ÃÅÏŞ
+%è°ƒæ•´èƒ½é‡é—¨é™
 amp1 = min(amp1, max(amp)/4);
 amp2 = min(amp2, max(amp)/8);
 
-%¿ªÊ¼¶Ëµã¼ì²â
+%å¼€å§‹ç«¯ç‚¹æ£€æµ‹
 x1 = 0; 
 x2 = 0;
 for n=1:length(zcr)
    goto = 0;
    switch status
-   case {0,1}                   % 0 = ¾²Òô, 1 = ¿ÉÄÜ¿ªÊ¼
-      if amp(n) > amp1          % È·ĞÅ½øÈëÓïÒô¶Î
+   case {0,1}                   % 0 = é™éŸ³, 1 = å¯èƒ½å¼€å§‹
+      if amp(n) > amp1          % ç¡®ä¿¡è¿›å…¥è¯­éŸ³æ®µ
          x1 = max(n-count-1,1);
          status  = 2;
          silence = 0;
          count   = count + 1;
-      elseif amp(n) > amp2 || ... % ¿ÉÄÜ´¦ÓÚÓïÒô¶Î
+      elseif amp(n) > amp2 || ... % å¯èƒ½å¤„äºè¯­éŸ³æ®µ
              zcr(n) > zcr2
          status = 1;
          count  = count + 1;
-      else                       % ¾²Òô×´Ì¬
+      else                       % é™éŸ³çŠ¶æ€
          status  = 0;
          count   = 0;
       end
-   case 2                       % 2 = ÓïÒô¶Î
-      if amp(n) > amp2 || ...     % ±£³ÖÔÚÓïÒô¶Î
+   case 2                       % 2 = è¯­éŸ³æ®µ
+      if amp(n) > amp2 || ...     % ä¿æŒåœ¨è¯­éŸ³æ®µ
          zcr(n) > zcr2
          count = count + 1;
-      else                       % ÓïÒô½«½áÊø
+      else                       % è¯­éŸ³å°†ç»“æŸ
          silence = silence+1;
-         if silence < maxsilence % ¾²Òô»¹²»¹»³¤£¬ÉĞÎ´½áÊø
+         if silence < maxsilence % é™éŸ³è¿˜ä¸å¤Ÿé•¿ï¼Œå°šæœªç»“æŸ
             count  = count + 1;
-         elseif count < minlen   % ÓïÒô³¤¶ÈÌ«¶Ì£¬ÈÏÎªÊÇÔëÉù
+         elseif count < minlen   % è¯­éŸ³é•¿åº¦å¤ªçŸ­ï¼Œè®¤ä¸ºæ˜¯å™ªå£°
             status  = 0;
             silence = 0;
             count   = 0;
-         else                    % ÓïÒô½áÊø
+         else                    % è¯­éŸ³ç»“æŸ
             status  = 3;
          end
       end
